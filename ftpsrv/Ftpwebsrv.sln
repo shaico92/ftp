@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30128.36
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ftpsrv", "ftpsrv\ftpsrv.csproj", "{808BADF8-8DC5-4973-9BF3-F17085C70503}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6F0C5D16-2A7D-40C9-8989-3B7A3CEAA3C7} = {6F0C5D16-2A7D-40C9-8989-3B7A3CEAA3C7}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransfer", "..\ftpclient\FileTransfer\FileTransfer.csproj", "{6F0C5D16-2A7D-40C9-8989-3B7A3CEAA3C7}"
 EndProject
