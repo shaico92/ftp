@@ -13,8 +13,10 @@ namespace FileTransfer
         
         Download
     }
+
     public sealed class FileTransferFactory
     {
+
         IPEndPoint m_ep;
      
          Socket clientSocket;
@@ -422,12 +424,120 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
         }
 
 
+        public void UploadFolder(string FolderPath)
+        {
+            Directory_S directory_S = new Directory_S(FolderPath);
+            getDirectotiresRecoursevly(ref directory_S);
+        }
+        private void FillFileSize(ref File_S file)
+        {
+            FileStream stream;
+            BinaryReader reader;
+
+
+            file.FileSize = File.ReadAllBytes(file.FilePath);
+            
+
+
+             stream = File.OpenRead(file.FilePath);
+            reader = new BinaryReader(stream);
+
+            file.FileSize = reader.ReadBytes(file.FileSize.Length);
+
+
+            reader.Close();
+
+
+
+        }
+        private void getDirectotiresRecoursevly(ref Directory_S folder)
+        {
+            string[] files = Directory.GetFiles(folder.dirPath);
+
+            if (files.Length > 0)
+            {
+                Console.WriteLine("in folder {0} there are {1} files", folder.dirPath, files.Length);
+                foreach (var file in files)
+                {
+                    
+                    File_S fileObj = new File_S(file);
+                    FillFileSize(ref fileObj);
+                    folder.files.Add(fileObj);
+                    Console.WriteLine("\t{0}", file);
+                }
+            }
+
+
+
+            var dirs = Directory.GetDirectories(folder.dirPath);
+
+            if (dirs.Length > 0)
+            {
+                Console.WriteLine("in folder {0} there are {1} directories", folder.dirPath, dirs.Length);
+                foreach (var directory in dirs)
+                {
+                    Directory_S directory_ = new Directory_S(directory);
+
+
+                    Console.WriteLine("\t{0}directory:", directory);
+
+                    getDirectotiresRecoursevly(ref directory_);
+
+                    folder.directories.Add(directory_);
 
 
 
 
+                }
+            }
 
 
+
+        }
+
+
+
+
+        class Directory_S
+        {
+            public string dirPath { get; }
+            public string dirname { get; }
+            public List<Directory_S> directories;
+            public List<File_S> files;
+
+            public Directory_S(string dirPath)
+            {
+                this.dirPath = dirPath;
+                string[] splitter = dirPath.Split("\\");
+                dirname = splitter[splitter.Length - 1];
+
+
+                if (directories == null)
+                {
+                    directories = new List<Directory_S>();
+                }
+                if (files == null)
+                {
+                    files = new List<File_S>();
+                }
+
+            }
+
+        }
+
+         class File_S
+        {
+           public string nameFile { get; }
+            public string FilePath { get; }
+            public byte[] FileSize;
+            public File_S(string FilePath) 
+            {
+                this.FilePath = FilePath;
+                string[] splitter = FilePath.Split("\\");
+                nameFile = splitter[splitter.Length - 1];
+                
+            }
+        }
 
 
     }
