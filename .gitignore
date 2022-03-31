@@ -1,3 +1,7 @@
 
 /Bin
 /obj
+/ftpclient/.vs/Ftpwebclient/v16
+/ftpclient/FileTransfer/obj
+/ftpsrv/.vs/Ftpwebsrv/v16
+/ftpsrv/ftpsrv/obj
