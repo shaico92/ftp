@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30128.36
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ftpclinet", "ftpclinet\ftpclinet.csproj", "{808BADF8-8DC5-4973-9BF3-F17085C70503}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D278C71A-DD38-45BB-A061-9212ADD2A3EA} = {D278C71A-DD38-45BB-A061-9212ADD2A3EA}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransfer", "FileTransfer\FileTransfer.csproj", "{D278C71A-DD38-45BB-A061-9212ADD2A3EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransfer", "FileTransfer\FileTransfer.csproj", "{D278C71A-DD38-45BB-A061-9212ADD2A3EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
