@@ -83,8 +83,9 @@ namespace ftpclient
         {
 
             //postFile();
-
-
+            FileTransferFactory.GetInstance().Init(IPAddress.Parse("127.0.0.1"), 5032,15000);
+           FileTransferFactory.GetInstance().UploadFile("SharedMemory\\x64\\Debug\\Test.exe");
+            FileTransferFactory.GetInstance().UploadFile("SharedMemory\\x64\\Debug\\Test.pdb");
             bool appRunning = true;
             while ( appRunning )
 

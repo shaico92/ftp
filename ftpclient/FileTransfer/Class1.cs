@@ -144,6 +144,38 @@ new BinaryWriter(new FileStream(fileName, FileMode.Create)); ; ;
 
         }
 
+        private bool isFinishingData(byte[] data,Socket sock)
+        {
+
+
+            if (data!=null)
+            {
+                var addr =(IPEndPoint)sock.RemoteEndPoint;
+               var add_= addr.Address.GetAddressBytes();
+                int indForAddress = 4;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (data[indForAddress] != add_[i])
+                    {
+                        return false;
+                    }
+                    indForAddress++;
+                }
+
+
+                for (int i = data.Length-20; i < data.Length; i++)
+                {
+                    if (data[i]!=(byte)'$')
+                    {
+                        return false;
+                    }
+                }
+
+
+
+            }
+            return true;
+        }
 
         public void OpenReceivingConnection()
         {
@@ -163,34 +195,34 @@ new BinaryWriter(new FileStream(fileName, FileMode.Create)); ; ;
                 {
                     List<(byte[], int)> byts = new List<(byte[], int)>();
 
-                    while (bytesRec < bufLength)
+                    byte[] buffTocheck= new byte[bufLength];
+                    while (true)
                     {
-                        bytes = new byte[bufLength];
-                        bytesRec += receivingSock.Receive(bytes);
-                        int dat = bytesRec;
-                        if (byts.Count > 0)
+
+                           bytes = new byte[bufLength];
+                            bytesRec += receivingSock.Receive(bytes);
+                        if (bytesRec== bufLength)
                         {
-                            dat = bytesRec - byts[byts.Count - 1].Item2;
-                        }
-
-                        byts.Add((bytes, dat));
-
-                    }
-
-
-                    byte[] bytesz = new byte[bufLength];
-                    for (int i = 0; i < bytesz.Length; i++)
-                    {
-                        foreach (var arr in byts)
-                        {
-                            for (int j = 0; j < arr.Item2; j++)
+                            
+                            if (isFinishingData(bytes, receivingSock))
                             {
-                                bytesz[i] = arr.Item1[j];
-                                i++;
+                                buffTocheck = bytes;
+                                break;
                             }
                         }
-                        break;
+
+
+
+
                     }
+
+
+
+
+
+
+                    
+                   
 
                     bytesRec = 0;
 
@@ -201,22 +233,22 @@ new BinaryWriter(new FileStream(fileName, FileMode.Create)); ; ;
 
                     for (int i = 0; i < requestType.Length; i++)
                     {
-                        requestType[i] = bytesz[count];
+                        requestType[i] = buffTocheck[count];
                         count++;
                     }
 
                     int requestTypeInt = BitConverter.ToInt32(requestType, 0);
 
                     byte[] NameSize = new byte[4];
-
+                    count += 4;
                     for (int i = 0; i < NameSize.Length; i++)
                     {
-                        NameSize[i] = bytesz[count];
+                        NameSize[i] = buffTocheck[count];
                         count++;
                     }
                     int NameSizeCount = BitConverter.ToInt32(NameSize, 0);
-                    string FileName = Encoding.UTF8.GetString(bytesz, count, NameSizeCount);
-                    handleRequest((RequestType)requestTypeInt, FileName, count, NameSizeCount, bytesz); ;
+                    string FileName = Encoding.UTF8.GetString(buffTocheck, count, NameSizeCount);
+                    handleRequest((RequestType)requestTypeInt, FileName, count, NameSizeCount, buffTocheck); ;
                 }
                 catch (Exception e)
                 {
@@ -339,6 +371,8 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
 
         public void UploadFile(string FilePath)
         {
+           
+
             ConnectToFTP();
 
 
@@ -346,6 +380,7 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
             string fname;
             byte[] nameAs = new byte[4];
             byte[] ddataAsByees = new byte[4];
+            
             FileStream stream;
             BinaryReader reader;
             byte[] dataAsByees = new byte[4];
@@ -358,7 +393,10 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
             reader = new BinaryReader(stream);
 
             dataAsByees = reader.ReadBytes(ddataAsByees.Length);
-
+            if (dataAsByees.Length>bufLength)
+            {
+                return;
+            }
 
             reader.Close();
 
@@ -376,7 +414,12 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
                 nextStartPoint++;
             }
 
-
+            byte[] ipaddress = m_ep.Address.GetAddressBytes(); //new byte[4];
+            for (int i = 0; i < ipaddress.Length; i++)
+            {
+                BufferSize[nextStartPoint] = ipaddress[i];
+                nextStartPoint++;
+            }
 
             for (int i = 0; i < nameSize.Length; i++)
             {
@@ -390,8 +433,14 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
                 BufferSize[nextStartPoint] = nameAs[i];
                 nextStartPoint++;
             }
-           
-                byte[] dataAsByedes = BitConverter.GetBytes((dataAsByees.Length / 255));//.ToByte() //Encoding.ASCII.GetBytes();
+
+          
+
+
+
+
+
+            byte[] dataAsByedes = BitConverter.GetBytes((dataAsByees.Length / 255));//.ToByte() //Encoding.ASCII.GetBytes();
                                                                                         //setting the size buffer
                                                                                         //nextStartPoint += 1;
                 for (int i = 0; i < dataAsByedes.Length; i++)
@@ -406,21 +455,24 @@ new BinaryWriter(new FileStream(FileName, FileMode.Create)); ; ;
                     nextStartPoint++;
                 }
 
-                // nextStartPoint += 1;
-                for (int i = 0; i < dataAsByees.Length; i++)
-                {
-                    BufferSize[nextStartPoint] = dataAsByees[i];
-                    nextStartPoint++;
-                }
+            for (int i = 0; i < dataAsByees.Length; i++)
+            {
+                BufferSize[nextStartPoint] = dataAsByees[i];
+                nextStartPoint++;
+            }
+
+            const byte ClosingChar = (byte)('$');
+
+            while (nextStartPoint< BufferSize.Length)
+            {
+                BufferSize[nextStartPoint] = ClosingChar;
+                nextStartPoint++;
+            }
 
 
-                int bytesRec = 0;
+            clientSocket.Send(BufferSize);
 
-                byte[] bytes = null;
-
-                clientSocket.Send(BufferSize);
-
-            DisconnectFromFTP();
+           // DisconnectFromFTP();
         }
 
 

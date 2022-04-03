@@ -31,18 +31,19 @@ namespace ftpsrv
             //getDirectotiresRecoursevly(ref dir);
 
 
-            FileTransferFactory.GetInstance().UploadFolder("someFolderPath");
-
-
-
-
-
+            //  FileTransferFactory.GetInstance().UploadFolder("C:\\Users\\shaic\\Downloads\\fix");
 
 
             // 
-            var add=IPAddress.Parse("127.0.0.1");
+            var add = IPAddress.Parse("127.0.0.1");
 
-            FileTransferFactory.GetInstance().Init(add,5032);
+            FileTransferFactory.GetInstance().Init(add, 5032,15000);
+            //FileTransferFactory.GetInstance().UploadFile("C:\\Users\\shaic\\Downloads\\fix\\SharedMemory.sln", false);
+
+
+            //FileTransferFactory.GetInstance().SetDesigna//tedFolder("C:\\Users\\shaic\\Documents\\uploads");
+
+
             FileTransferFactory.GetInstance().OpenReceivingConnection();
         }
 
